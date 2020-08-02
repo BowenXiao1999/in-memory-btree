@@ -6,7 +6,8 @@
 #include <btree.hpp>
 
 #define LIMIT 20000
-#define POP_LIMIT 10000
+#define POP_LIMIT 20000
+using namespace btree;
 
 int main() {
     auto seed = time(nullptr);
@@ -22,20 +23,23 @@ int main() {
         }
         std::sort(a.begin(), a.end());
         a.erase(unique(a.begin(), a.end()), a.end());
+        ASSERT(test.size() == a.size());
         for (auto i = 0; i < POP_LIMIT; ++i) {
             auto step = rand() % a.size();
             auto iter0 = a.begin();
             auto iter1 = test.begin();
             std::advance(iter0, step);
-            for(int i = 0; i < step; ++i, ++iter1);
+            for (unsigned i = 0; i < step; ++i, ++iter1);
             a.erase(iter0);
             test.erase(iter1);
+            ASSERT(a.size() == test.size());
         }
         for (auto i : test) {
             b.push_back(i.first);
         }
-        assert(a == b);
+        ASSERT(a == b);
     }
+    ASSERT(alive_node == 0);
     {
         std::deque<int> a, b;
         BTree<int, int> test;
@@ -46,16 +50,17 @@ int main() {
         }
         std::sort(a.begin(), a.end());
         a.erase(unique(a.begin(), a.end()), a.end());
-        for (auto i = 0; i < POP_LIMIT; ++i) {
+        while (test.size()) {
             a.pop_front();
             test.pop_min();
+            ASSERT(a.size() == test.size());
         }
         for (auto i : test) {
             b.push_back(i.first);
         }
-        assert(a == b);
+        ASSERT(a == b);
     }
-
+    ASSERT(alive_node == 0);
     {
         std::vector<int> a, b;
         BTree<int, int> test;
@@ -66,14 +71,16 @@ int main() {
         }
         std::sort(a.begin(), a.end());
         a.erase(unique(a.begin(), a.end()), a.end());
-        for (auto i = 0; i < POP_LIMIT; ++i) {
+        while (test.size()) {
             a.pop_back();
             test.pop_max();
+            ASSERT(a.size() == test.size());
         }
         for (auto i : test) {
             b.push_back(i.first);
         }
-        assert(a == b);
+        ASSERT(a == b);
     }
+    ASSERT(alive_node == 0);
     return 0;
 }
